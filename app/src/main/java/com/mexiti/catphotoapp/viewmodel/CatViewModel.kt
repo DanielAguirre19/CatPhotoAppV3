@@ -5,13 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mexiti.catphotoapp.data.NetWorkCatPhotoRepository
 import com.mexiti.catphotoapp.model.CatPhoto
 import com.mexiti.catphotoapp.network.CatApi
 import kotlinx.coroutines.launch
 import java.io.IOException
 
 sealed interface CatUiState{
-    data class Success(val photos:CatPhoto) : CatUiState
+    data class Success(val photos:List<CatPhoto>) : CatUiState
     object Error: CatUiState
     object Loading: CatUiState
 }
@@ -26,8 +27,9 @@ class CatViewModel:ViewModel(){
    private  fun getCatPhotos(){
          viewModelScope.launch {
             catUiState = try {
-                 val listResult = CatApi.retrofitService.getPhotos()
-                CatUiState.Success(listResult[0])
+                val catPhotoRepository = NetWorkCatPhotoRepository()
+                val listResult = catPhotoRepository.getCatPhotos()
+                CatUiState.Success(listResult)
              } catch (e: IOException){
                  CatUiState.Error
              }
